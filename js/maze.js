@@ -29,6 +29,9 @@ class MazeCell {
 		}
 		projection += '[' + this.row + ',' + this.col + ']';
 		return projection;
+
+		//looks like its some sort of 2D array that is specifying the row and col of the specified 
+		//wall or passageway
 	}
 }
 
@@ -55,6 +58,10 @@ class Maze {
 
 		this.start = this.maze[1][0];
 		this.destination = this.maze[this.maze.length - 2][this.maze[0].length - 1];
+
+		// each object in the cell array is of type MazeCell
+		// the start and end locations are hardcoded because the program has to have some fixed starting point
+		// and fixed ending point so the program knows where the finish is
 	}
 
 	/*
@@ -65,6 +72,8 @@ class Maze {
 			return true;
 		else
 			return false;
+		// this function returns true if the current cell has found the ending cell, 
+		// thus ending the seach
 	}
 
 	/*
@@ -74,24 +83,28 @@ class Maze {
 	getNeighbors(cell) {
 		var neighbors = [];
 
-		if (cell.row - 1 >= 0 &&
-			this.maze[cell.row - 1][cell.col].type === MazeCellTypes.PASSAGEWAY) {
-			neighbors.push(this.maze[cell.row - 1][cell.col]);
-		}
-
-		if (cell.col - 1 >= 0 &&
-			this.maze[cell.row][cell.col - 1].type === MazeCellTypes.PASSAGEWAY) {
-			neighbors.push(this.maze[cell.row][cell.col - 1]);
-		}
-
+		//testing cell below
 		if (cell.row + 1 < this.maze.length &&
 			this.maze[cell.row + 1][cell.col].type === MazeCellTypes.PASSAGEWAY) {
 			neighbors.push(this.maze[cell.row + 1][cell.col])
 		}
 
+		//testing cell to the right
 		if (cell.col + 1 < this.maze[cell.row].length &&
 			this.maze[cell.row][cell.col + 1].type === MazeCellTypes.PASSAGEWAY) {
 			neighbors.push(this.maze[cell.row][cell.col + 1]);
+		}
+
+		//testing cell above
+		if (cell.row - 1 >= 0 &&
+			this.maze[cell.row - 1][cell.col].type === MazeCellTypes.PASSAGEWAY) {
+			neighbors.push(this.maze[cell.row - 1][cell.col]);
+		}
+
+		//testing cell to the left
+		if (cell.col - 1 >= 0 &&
+			this.maze[cell.row][cell.col - 1].type === MazeCellTypes.PASSAGEWAY) {
+			neighbors.push(this.maze[cell.row][cell.col - 1]);
 		}
 
 		return neighbors;
