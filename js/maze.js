@@ -132,6 +132,7 @@ class Maze {
 		// map will have projection values as keys and objects as values.
 		var parents = new Array();
 		parents[this.start.projection()] = false;
+		//parents holds the nodes that came before
 
 		// search and continue searching  while there are still items in the queue
 		while (frontier.length >= 1) {
@@ -184,7 +185,66 @@ class Maze {
 	 * with the type MazeCellTypes.SOLUTION. 
 	 */
 	solveMazeDFS() {
-		// TODO
+		// create the queue to hold the cells we have visited but need
+		// to return to explore (we will treat the array like a queue)
+		var frontier = new Array()
+		frontier.push(this.start);
+
+		// create a set to hold the cells we have visited and add the 
+		// first element
+		var visited = new Set();
+		visited.add(this.start.projection())
+
+		// create a map to hold cells to parents, set first element's
+		// parents as false (is source cell). Generally, the parents
+		// map will have projection values as keys and objects as values.
+		var parents = new Array();
+		parents[this.start.projection()] = false;
+		//parents holds the nodes that came before
+
+		// search and continue searching  while there are still items in the queue
+		while (frontier.length >= 1) {
+
+			// get the last element in the queue
+			var current = frontier.pop();
+
+			// mark the next element as visited
+			current.type = MazeCellTypes.VISITED;
+
+			// test to see if it meets the destination criteria
+			if (this.destinationPredicate(current)) {
+				// we've reached the destination! Awesome!
+				break;
+			}
+
+			// get the neighbors of the current cell (passageways)
+			var neighbors = this.getNeighbors(current);
+
+			// one by one, add neighbors to the queue
+			for (var i = 0; i < neighbors.length; i++) {
+
+				var neighbor = neighbors[i].projection();
+
+				// see if we've already visited this cell
+				if (!visited.has(neighbor)) {
+					// if we haven't,  add it to the visited set
+					visited.add(neighbor);
+					// add current as the neighbor's parent
+					parents[neighbor] = current;
+					// add the neighbor to the queue
+					frontier.push(neighbors[i])
+						// set the neighbor to have a "frotier" type
+					neighbors[i].type = MazeCellTypes.FRONTIER;
+				}
+			}
+		}
+
+		// backtrack through each cell's parent and set path cells to type
+		// solution
+		while (current) {
+			current.type = MazeCellTypes.SOLUTION;
+			current = parents[current.projection()];
+		}
 	}
 	
 	/*
@@ -193,7 +253,73 @@ class Maze {
 	 * with the type MazeCellTypes.SOLUTION. 
 	 */
 	solveMazeDijkstra() {
-		// TODO
+		// create the queue to hold the cells we have visited but need
+		// to return to explore (we will treat the array like a queue)
+		var frontier = new PriorityQueue(metric)
+		this.start.priority = 0;
+		frontier.enqueue(this.start);
+
+		// create a set to hold the cells we have visited and add the 
+		// first element
+		var visited = new Set();
+		visited.add(this.start.projection())
+
+		// create a map to hold cells to parents, set first element's
+		// parents as false (is source cell). Generally, the parents
+		// map will have projection values as keys and objects as values.
+		var parents = new Array();
+		parents[this.start.projection()] = false;
+		//parents holds the nodes that came before
+
+		// search and continue searching  while there are still items in the queue
+		while (frontier.peek() != undefined) {
+
+			// get the next element in the queue
+			var current = frontier.dequeue();
+
+			// mark the next element as visited
+			current.type = MazeCellTypes.VISITED;
+
+			// test to see if it meets the destination criteria
+			if (this.destinationPredicate(current)) {
+				// we've reached the destination! Awesome!
+				break;
+			}
+
+			// get the neighbors of the current cell (passageways)
+			var neighbors = this.getNeighbors(current);
+
+			//console.log(neighbors)
+			// one by one, add neighbors to the queue
+			for (var i = 0; i < neighbors.length; i++) {
+
+				var neighbor = neighbors[i].projection();
+
+				// see if we've already visited this cell
+				if (!visited.has(neighbor)) {
+					// if we haven't,  add it to the visited set
+					visited.add(neighbor);
+					// add current as the neighbor's parent
+					parents[neighbor] = current;
+					neighbors[i].priority = Math.min(neighbors[i].priority + current.priority, current.priority + 1)
+					// add the neighbor to the queue
+					frontier.enqueue(neighbors[i])
+						// set the neighbor to have a "frotier" type
+					neighbors[i].type = MazeCellTypes.FRONTIER;
+				}
+			}
+		}
+
+		// backtrack through each cell's parent and set path cells to type
+		// solution
+		while (current) {
+			current.type = MazeCellTypes.SOLUTION;
+			current = parents[current.projection()];
+		}
+
+		function metric(MazeCell){
+			return MazeCell.priority
+		}
 	}
 	
 	/*
@@ -202,7 +328,78 @@ class Maze {
 	 * with the type MazeCellTypes.SOLUTION. 
 	 */
 	solveMazeAStar() {
-		// TODO
+		// create the queue to hold the cells we have visited but need
+		// to return to explore (we will treat the array like a queue)
+		var frontier = new PriorityQueue(metric)
+		this.start.priority = 0;
+		frontier.enqueue(this.start);
+
+		// create a set to hold the cells we have visited and add the 
+		// first element
+		var visited = new Set();
+		visited.add(this.start.projection())
+
+		// create a map to hold cells to parents, set first element's
+		// parents as false (is source cell). Generally, the parents
+		// map will have projection values as keys and objects as values.
+		var parents = new Array();
+		parents[this.start.projection()] = false;
+		//parents holds the nodes that came before
+
+		// search and continue searching  while there are still items in the queue
+		while (frontier.peek() != undefined) {
+
+			// get the next element in the queue
+			var current = frontier.dequeue();
+
+			// mark the next element as visited
+			current.type = MazeCellTypes.VISITED;
+
+			// test to see if it meets the destination criteria
+			if (this.destinationPredicate(current)) {
+				// we've reached the destination! Awesome!
+				break;
+			}
+
+			// get the neighbors of the current cell (passageways)
+			var neighbors = this.getNeighbors(current);
+
+			//console.log(neighbors)
+			// one by one, add neighbors to the queue
+			for (var i = 0; i < neighbors.length; i++) {
+
+				var neighbor = neighbors[i].projection();
+
+				// see if we've already visited this cell
+				if (!visited.has(neighbor)) {
+					// if we haven't,  add it to the visited set
+					visited.add(neighbor);
+					// add current as the neighbor's parent
+					parents[neighbor] = current;
+					neighbors[i].priority = Math.min(neighbors[i].priority + current.priority, current.priority + 1)
+					// add the neighbor to the queue
+					frontier.enqueue(neighbors[i])
+						// set the neighbor to have a "frotier" type
+					neighbors[i].type = MazeCellTypes.FRONTIER;
+				}
+			}
+		}
+
+		// backtrack through each cell's parent and set path cells to type
+		// solution
+		while (current) {
+			current.type = MazeCellTypes.SOLUTION;
+			current = parents[current.projection()];
+		}
+
+		function metric(MazeCell){
+
+			return MazeCell.priority + heuristic(MazeCell)
+		}
+
+		function heuristic(MazeCell){
+			return maze.length - 2 - MazeCell.row + maze[0].length - 1 - MazeCell.col
+		}
 	}
 
 	
